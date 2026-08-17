@@ -14,6 +14,12 @@ rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
     tag: 0.1.7-71c18cb
+  # Scaled to 0 2026-08-17: the app itself is crash-looping (liveness probe on / never
+  # passes, exit 137) - unrelated to the release-outcome mechanism this env exists to
+  # verify (already confirmed working live via 7 real SyncFail-triggered outcome
+  # reports). Left at 0 rather than live-patched, so ArgoCD's own selfHeal doesn't just
+  # fight this back to 2 - remove once checkout-api's own probe/startup issue is fixed.
+  replicas: 0
 releaseTracking:
   relayUrl: http://10.89.0.2:30880/outcome/kind-prod
   appNamespace: app-checkout-api-cicd
