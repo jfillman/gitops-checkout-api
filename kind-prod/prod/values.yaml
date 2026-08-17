@@ -2,6 +2,14 @@ appName: checkout-api
 appType: app
 cluster: kind-prod
 envName: prod
+# ghcr.io/jfillman/checkout-api is a private package - kind-prod has no ExternalSecret/
+# registryCredentials mechanism (no ESO installed on this cluster yet, see
+# idp-application's own values.yaml header on registryCredentials), so the pull secret
+# is a plain, hand-provisioned Secret (kubectl create secret docker-registry, never
+# committed to git) referenced here directly rather than via that mechanism.
+serviceAccount:
+  imagePullSecrets:
+    - name: ghcr-pull-secret
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
