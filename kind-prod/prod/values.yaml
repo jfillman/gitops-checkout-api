@@ -10,6 +10,11 @@ rollout:
     - name: http
       containerPort: 3000
 
+configMaps:
+  - name: app-settings
+    existingConfigMap: checkout-api-app-config
+    mountPath: /config/app-settings
+
 secrets:
   - name: dummy-secret-01
     as: env
