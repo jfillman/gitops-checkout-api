@@ -15,6 +15,11 @@ configMaps:
     existingConfigMap: checkout-api-app-config
     mountPath: /config/app-settings
 
+notifications:
+  slack:
+    enabled: true
+    channel: "#all-idp-lab"
+
 secrets:
   - name: dummy-secret-01
     as: env
