@@ -1,0 +1,30 @@
+# BOILERPLATE - real (not stub). See pull-request-sast.yaml for the full pattern
+# explanation. References the dedicated image-scan-check Pipeline, which resolves the
+# promoted image from the gitops PR's staging manifest and runs a real Trivy scan.
+#
+# No app-checkout-api-cicd/checkout-api substitution or workspace needed - same reasons as
+# pull-request-sast.yaml. pr-number feeds the finally-block PR comment.
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: image-scan
+  annotations:
+    # See pull-request-sast.yaml for why this is on-cel-expression (release-branch-only)
+    # and why has() guards the pull_request field.
+    pipelinesascode.tekton.dev/on-cel-expression: 'has(body.pull_request) && body.pull_request.base.ref == "main" && body.pull_request.head.ref.startsWith("release-")'
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  pipelineRef:
+    resolver: cluster
+    params:
+      - { name: kind, value: pipeline }
+      - { name: name, value: image-scan-check }
+      - { name: namespace, value: platform-catalog }
+  params:
+    - { name: repo-url, value: "{{ repo_url }}" }
+    - { name: revision, value: "{{ revision }}" }
+    - { name: pr-number, value: "{{ body.pull_request.number }}" }
+  taskRunTemplate:
+    serviceAccountName: pipeline-runner
+  timeouts:
+    pipeline: "10m"

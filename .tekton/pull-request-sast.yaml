@@ -1,0 +1,50 @@
+# BOILERPLATE - real (not stub), shift-left redesign. See also
+# pull-request-image-scan.yaml, pull-request-policy-check.yaml, pull-request-sbom.yaml.
+# References the dedicated sast-check Pipeline, which resolves the promoted image and
+# checks whether sast-scan passed at build time via its SLSA provenance attestation -
+# not a re-scan (re-scanning source at a fixed commit would be redundant).
+#
+# No app-checkout-api-cicd/checkout-api substitution or workspace needed - repo-url/revision come
+# from PaC's template vars, and the check clones/queries in its own scratch space.
+#
+# pr-number feeds this Pipeline's finally block, which posts a PR comment reporting the
+# outcome via comment-pr-check-result.yaml, on top of the native GitHub Check.
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: sast
+  annotations:
+    # on-cel-expression, not on-event/on-target-branch - PaC ignores those two entirely
+    # once a CEL expression is present, so this expression has to carry the whole
+    # condition. release-<sha>-<timestamp> (open-release-pr.yaml's branch convention)
+    # distinguishes a real release-promotion PR from any other PR (e.g. onboarding-resync,
+    # which has no promoted image to scan).
+    #
+    # Per-commit verification is intentional, not restricted to body.action == "opened":
+    # that restriction was tried once to stop duplicate PR comments on a second commit,
+    # but it also meant later commits were never independently re-checked (a real gap -
+    # GitHub showed no Check Run for the PR's actual HEAD). Fixed properly instead:
+    # comment-pr-check-result.yaml now edits its own prior comment on the PR in place
+    # (via a hidden marker) rather than always appending a new one.
+    #
+    # has(body.pull_request) guards against a push webhook (e.g. this same PR merging)
+    # hitting the same CEL expression - a push event has no pull_request key, which
+    # without the guard raised a CEL "no such key" error and posted a false-alarm bot
+    # comment even though the real check had already passed.
+    pipelinesascode.tekton.dev/on-cel-expression: 'has(body.pull_request) && body.pull_request.base.ref == "main" && body.pull_request.head.ref.startsWith("release-")'
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  pipelineRef:
+    resolver: cluster
+    params:
+      - { name: kind, value: pipeline }
+      - { name: name, value: sast-check }
+      - { name: namespace, value: platform-catalog }
+  params:
+    - { name: repo-url, value: "{{ repo_url }}" }
+    - { name: revision, value: "{{ revision }}" }
+    - { name: pr-number, value: "{{ body.pull_request.number }}" }
+  taskRunTemplate:
+    serviceAccountName: pipeline-runner
+  timeouts:
+    pipeline: "10m"
