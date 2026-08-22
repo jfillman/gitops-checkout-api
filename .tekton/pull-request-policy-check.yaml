@@ -1,0 +1,34 @@
+# The real policy-check gate: points at the dedicated policy-check Pipeline, which
+# verifies the app-repo commit's gitsign signature against this Application's
+# allowed-signers list. See docs/commit-signing.md.
+#
+# repo-url/revision are PaC's own template vars for this gitops repo's PR.
+# app-namespace/app-name are static, substituted once at onboarding.
+#
+# pr-number - see pull-request-sast.yaml (feeds the finally-block PR comment).
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: policy-check
+  annotations:
+    # See pull-request-sast.yaml for why this is on-cel-expression (release-branch-only)
+    # and why has() guards the pull_request field.
+    pipelinesascode.tekton.dev/on-cel-expression: 'has(body.pull_request) && body.pull_request.base.ref == "main" && body.pull_request.head.ref.startsWith("release-")'
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  pipelineRef:
+    resolver: cluster
+    params:
+      - { name: kind, value: pipeline }
+      - { name: name, value: policy-check }
+      - { name: namespace, value: platform-catalog }
+  params:
+    - { name: repo-url, value: "{{ repo_url }}" }
+    - { name: revision, value: "{{ revision }}" }
+    - { name: pr-number, value: "{{ body.pull_request.number }}" }
+    - { name: app-namespace, value: "app-checkout-api-cicd" }
+    - { name: app-name, value: "checkout-api" }
+  taskRunTemplate:
+    serviceAccountName: pipeline-runner
+  timeouts:
+    pipeline: "10m"
