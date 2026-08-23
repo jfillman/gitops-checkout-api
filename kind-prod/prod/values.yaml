@@ -5,7 +5,7 @@ envName: prod
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
-    tag: 0.1.23-2459d55
+    tag: 0.1.23-3a936fb
   ports:
     - name: http
       containerPort: 3000
