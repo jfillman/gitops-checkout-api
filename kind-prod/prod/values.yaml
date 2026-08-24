@@ -2,4 +2,7 @@ appName: checkout-api
 appType: app
 cluster: kind-prod
 envName: prod
-rollout: null
+rollout:
+  image:
+    repository: ghcr.io/jfillman/checkout-api
+    tag: 0.1.0-2c30fb9
