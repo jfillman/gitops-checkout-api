@@ -5,7 +5,7 @@ envName: prod
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
-    tag: 0.1.0-2c30fb9
+    tag: 0.2.0-6035e32
 releaseTracking:
   relayUrl: http://10.89.0.2:30880/outcome/kind-prod
   cluster: kind-prod
