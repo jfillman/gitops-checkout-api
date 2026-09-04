@@ -9,6 +9,14 @@ rollout:
   ports:
     - name: http
       containerPort: 3000
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
   strategy: canary
   # Real progression, not the chart's inert setWeight:100 default: two
   # weight/pause stages gated by an analysis run each (readiness, then

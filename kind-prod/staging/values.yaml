@@ -9,3 +9,11 @@ rollout:
   ports:
     - name: http
       containerPort: 3000
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
