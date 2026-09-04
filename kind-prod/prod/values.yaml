@@ -11,11 +11,11 @@ rollout:
       containerPort: 3000
   livenessProbe:
     httpGet:
-      path: /
+      path: /healthz
       port: 3000
   readinessProbe:
     httpGet:
-      path: /
+      path: /healthz
       port: 3000
   strategy: canary
   # Real progression, not the chart's inert setWeight:100 default: two
