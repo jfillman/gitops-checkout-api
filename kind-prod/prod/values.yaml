@@ -92,6 +92,7 @@ analysisTemplates:
               sum(kube_pod_container_status_restarts_total{namespace="{{args.namespace}}", pod=~".*-{{args.canary-hash}}-.*", container="checkout-api"})
 releaseTracking:
   relayUrl: http://dev.kiac.local:30880/outcome/kind-prod
+  relayHostAliasIP: "192.168.64.11"
   cluster: kind-prod
   appNamespace: app-checkout-api-cicd
   gitUrl: https://github.com/jfillman/checkout-api
