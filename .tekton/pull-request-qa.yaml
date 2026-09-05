@@ -9,7 +9,7 @@
 # one-file change to qa-gate.yaml's own step - see that Task's own header for why it's
 # already shaped to receive it; nothing about this onboarding template needs to change.
 #
-# No app-checkout-api-cicd substitution or workspace needed (a checkout-api substitution now exists, for the platform.io/app label below) - same reasons as
+# No app-checkout-api-cicd substitution or workspace needed (an checkout-api substitution now exists, for the platform.io/app label below) - same reasons as
 # pull-request-sast.yaml. pr-number feeds the finally-block PR comment.
 apiVersion: tekton.dev/v1
 kind: PipelineRun
