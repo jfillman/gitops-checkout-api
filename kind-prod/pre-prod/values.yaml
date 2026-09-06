@@ -2,4 +2,112 @@ appName: checkout-api
 appType: app
 cluster: kind-prod
 envName: pre-prod
-rollout: null
+httpRoute:
+  enabled: true
+  hostnames: ["checkout-api-pre-prod.prod.kiac.local"]
+  parentRefs:
+    - name: kiac
+      namespace: kiac-gateway
+rollout:
+  image:
+    repository: ghcr.io/jfillman/checkout-api
+    tag: 0.3.17-02a47de
+  ports:
+    - name: http
+      containerPort: 3000
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 3000
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: 3000
+  strategy: canary
+  # Real progression, not the chart's inert setWeight:100 default: two
+  # weight/pause stages gated by an analysis run each (readiness, then
+  # restart-stability), then two more weight/pause stages before the full
+  # promotion - 8 steps, well past the "at least 4" ask. Both AnalysisTemplates
+  # below query kube-state-metrics (already scraped on this cluster) rather than
+  # an app-level metric - checkout-api has no /metrics endpoint of its own today
+  # (its ServiceMonitor scrapes nothing), so a query against an app metric would
+  # never resolve and every canary would analysis-error, not gate on anything
+  # real. Pod name matching (pod=~".*-{{args.canary-hash}}-.*") sidesteps that:
+  # kube_pod_labels on this cluster carries no label_* dimensions (default empty
+  # metric-labels-allowlist, confirmed live), so there's no rollouts-pod-
+  # template-hash label to join on - but the hash is already embedded in every
+  # pod's own name by the standard Deployment/ReplicaSet naming convention.
+  steps:
+    - setWeight: 20
+    - pause: {duration: 30s}
+    - analysis:
+        templates:
+          - templateName: pod-health-check
+        args:
+          - name: canary-hash
+            valueFrom: {podTemplateHashValue: Latest}
+    - setWeight: 40
+    - pause: {duration: 30s}
+    - analysis:
+        templates:
+          - templateName: restart-stability-check
+        args:
+          - name: canary-hash
+            valueFrom: {podTemplateHashValue: Latest}
+    - setWeight: 60
+    - pause: {duration: 30s}
+    - setWeight: 80
+    - pause: {duration: 30s}
+  # Continuous background check, sibling of steps (runs for the whole rollout,
+  # not just at the two explicit analysis steps above) - same pod-health
+  # template, reused rather than duplicated.
+  canaryAnalysis:
+    templates:
+      - templateName: pod-health-check
+    args:
+      - name: canary-hash
+        valueFrom: {podTemplateHashValue: Latest}
+    startingStep: 1
+analysisTemplates:
+  # Both queries verified live against this cluster's real Prometheus
+  # (kube-prometheus-stack-prometheus.observability, port 9090) before being
+  # committed here - not guessed against the Argo Rollouts docs' example shape.
+  - name: pod-health-check
+    args:
+      - name: canary-hash
+      - name: namespace
+        value: app-checkout-api-pre-prod
+    metrics:
+      - name: pod-ready-ratio
+        interval: 30s
+        count: 3
+        successCondition: "result[0] >= 0.9"
+        failureLimit: 1
+        provider:
+          prometheus:
+            address: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+            query: |
+              avg(kube_pod_status_ready{namespace="{{args.namespace}}", pod=~".*-{{args.canary-hash}}-.*", condition="true"})
+  - name: restart-stability-check
+    args:
+      - name: canary-hash
+      - name: namespace
+        value: app-checkout-api-pre-prod
+    metrics:
+      - name: restart-count
+        interval: 30s
+        count: 3
+        successCondition: "result[0] < 3"
+        failureLimit: 1
+        provider:
+          prometheus:
+            address: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+            query: |
+              sum(kube_pod_container_status_restarts_total{namespace="{{args.namespace}}", pod=~".*-{{args.canary-hash}}-.*", container="checkout-api"})
+releaseTracking:
+  relayUrl: http://dev.kiac.local:30880/outcome/kind-prod
+  relayHostAliasIP: "192.168.64.2"
+  cluster: kind-prod
+  appNamespace: app-checkout-api-cicd
+  gitUrl: https://github.com/jfillman/checkout-api
+  cluster: kind-prod
