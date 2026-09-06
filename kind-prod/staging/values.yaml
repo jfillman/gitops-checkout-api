@@ -2,6 +2,12 @@ appName: checkout-api
 appType: app
 cluster: kind-prod
 envName: staging
+httpRoute:
+  enabled: true
+  hostnames: ["checkout-api.staging.kiac.local"]
+  parentRefs:
+    - name: kiac
+      namespace: kiac-gateway
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
