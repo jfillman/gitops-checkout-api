@@ -1,0 +1,5 @@
+appName: checkout-api
+appType: app
+cluster: kind-prod
+envName: pre-prod
+rollout: null
