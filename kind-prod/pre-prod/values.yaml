@@ -110,4 +110,3 @@ releaseTracking:
   cluster: kind-prod
   appNamespace: app-checkout-api-cicd
   gitUrl: https://github.com/jfillman/checkout-api
-  cluster: kind-prod
