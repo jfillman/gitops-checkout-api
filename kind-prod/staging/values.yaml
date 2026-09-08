@@ -11,7 +11,7 @@ httpRoute:
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
-    tag: 0.3.17-02a47de
+    tag: 0.3.16-fcbed40
   ports:
     - name: http
       containerPort: 3000
