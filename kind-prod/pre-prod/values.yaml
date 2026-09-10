@@ -19,10 +19,16 @@ rollout:
     httpGet:
       path: /healthz
       port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
   readinessProbe:
     httpGet:
       path: /healthz
       port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
   strategy: canary
   # Real progression, not the chart's inert setWeight:100 default: two
   # weight/pause stages gated by an analysis run each (readiness, then
