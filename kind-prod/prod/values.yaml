@@ -11,7 +11,7 @@ httpRoute:
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
-    tag: 0.3.21-cc144f8
+    tag: 0.3.26-503de30
   ports:
     - name: http
       containerPort: 3000
@@ -112,11 +112,11 @@ analysisTemplates:
               sum(kube_pod_container_status_restarts_total{namespace="{{args.namespace}}", pod=~".*-{{args.canary-hash}}-.*", container="checkout-api"})
 releaseTracking:
   relayUrl: "http://dev.kiac.local:30880/outcome/kind-prod"
-  relayHostAliasIP: 192.168.64.5
+  relayHostAliasIP: ""
   cluster: kind-prod
   appNamespace: app-checkout-api-cicd
   gitUrl: https://github.com/jfillman/checkout-api
-  gitRevision: cc144f86b5f3b214450168dccadcec16bbbb48d5
+  gitRevision: 503de30553047d8d7be653ea063f518783f3ebd5
   flowStartTime: ""
   chainId: ""
   prUrl: https://github.com/jfillman/gitops-checkout-api/pull/40
