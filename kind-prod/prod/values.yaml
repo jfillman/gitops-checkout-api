@@ -11,7 +11,7 @@ httpRoute:
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
-    tag: 0.4.2-6090e93
+    tag: 0.4.3-9d0f395
   ports:
     - name: http
       containerPort: 3000
@@ -116,7 +116,7 @@ releaseTracking:
   cluster: kind-prod
   appNamespace: app-checkout-api-cicd
   gitUrl: https://github.com/jfillman/checkout-api
-  gitRevision: 6090e9337fe1207e3ca53a42add10c58ec54429c
+  gitRevision: 9d0f395491732159c992cc1e695416faf78abe8b
   flowStartTime: ""
   chainId: ""
   prUrl: https://github.com/jfillman/gitops-checkout-api/pull/40
