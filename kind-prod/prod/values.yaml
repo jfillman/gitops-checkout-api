@@ -131,6 +131,24 @@ slos:
       metric: prober_probe_duration_seconds
       totalFilter: 'namespace="app-checkout-api-prod",container="checkout-api",probe_type="Liveness"'
       latencyThreshold: "0.01"
+  # Second SLO (2026-09-14), deliberately NOT breaching - a contrast case for
+  # Tower's SLOs tab. Same real metric family as the liveness one above
+  # (kubelet's prober_probe_duration_seconds), but the readiness probe
+  # instead, with a threshold picked from the ACTUAL live bucket
+  # distribution rather than a round-number guess: live-checked cumulative
+  # buckets for probe_type="Readiness" (total 6534 samples) put 6521 (99.80%)
+  # under 1s, comfortably clearing the 99% objective with real margin -
+  # unlike the liveness SLO's 10ms threshold, which was picked before
+  # checking the real distribution and turned out to be far tighter than
+  # this app's actual probe latency (see that SLO's own comment).
+  - name: checkout-api-readiness-latency
+    service: checkout-api
+    objective: 99
+    indicator:
+      type: latency
+      metric: prober_probe_duration_seconds
+      totalFilter: 'namespace="app-checkout-api-prod",container="checkout-api",probe_type="Readiness"'
+      latencyThreshold: "1"
 
 releaseTracking:
   relayUrl: "http://dev.kiac.local:30880/outcome/kind-prod"
