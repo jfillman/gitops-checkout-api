@@ -141,6 +141,18 @@ slos:
   # unlike the liveness SLO's 10ms threshold, which was picked before
   # checking the real distribution and turned out to be far tighter than
   # this app's actual probe latency (see that SLO's own comment).
+  #
+  # latencyThreshold: "1.0", not "1" - real bug hit live 2026-09-14: this
+  # XRD's own schema explicitly warns latencyThreshold must exactly match
+  # the histogram's le bucket label AS PROMETHEUS RENDERS IT, and this
+  # histogram's real buckets are 0.005,0.01,...,0.5,1.0,2.5,... (confirmed
+  # live) - "1" matches nothing, so the generated errorQuery's
+  # le="1"-filtered subtraction silently evaluated to an empty vector, which
+  # empty-propagated through the whole ratio and division: every one of
+  # Sloth's sli_error/burn-rate/budget recording rules for this SLO came
+  # back with zero series, no error anywhere, while the SLO itself still
+  # showed Ready/Synced. Not a Composition bug this time - a plain
+  # string-match mistake in the SLO's own spec.
   - name: checkout-api-readiness-latency
     service: checkout-api
     objective: 99
@@ -148,7 +160,7 @@ slos:
       type: latency
       metric: prober_probe_duration_seconds
       totalFilter: 'namespace="app-checkout-api-prod",container="checkout-api",probe_type="Readiness"'
-      latencyThreshold: "1"
+      latencyThreshold: "1.0"
 
 releaseTracking:
   relayUrl: "http://dev.kiac.local:30880/outcome/kind-prod"
