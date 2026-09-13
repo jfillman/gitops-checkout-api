@@ -110,6 +110,28 @@ analysisTemplates:
             address: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
             query: |
               sum(kube_pod_container_status_restarts_total{namespace="{{args.namespace}}", pod=~".*-{{args.canary-hash}}-.*", container="checkout-api"})
+# First real SLO on this platform (see HANDOFF-tower-slos.md) - deployed to
+# get live PrometheusServiceLevel/PrometheusRule data to build the Tower SLOs
+# tab against. checkout-api exposes no application-level HTTP metrics of its
+# own (ServiceMonitor target confirmed down live: "context deadline exceeded"
+# hitting :3000/metrics - it doesn't listen there), so this can't be a real
+# request-error-rate SLO yet. Uses kubelet's own prober_probe_duration_seconds
+# histogram instead (real, live-verified: le buckets 0.005..10 confirmed
+# present for this pod's liveness probe, ~86% of samples already under 5ms) -
+# a genuine latency signal for this app's HTTP endpoint (the liveness probe
+# hits /healthz over HTTP), not a fabricated metric. Swap to a real
+# http_request_duration_seconds-based SLO once checkout-api is actually
+# instrumented.
+slos:
+  - name: checkout-api-liveness-latency
+    service: checkout-api
+    objective: 99
+    indicator:
+      type: latency
+      metric: prober_probe_duration_seconds
+      totalFilter: 'namespace="app-checkout-api-prod",container="checkout-api",probe_type="Liveness"'
+      latencyThreshold: "0.01"
+
 releaseTracking:
   relayUrl: "http://dev.kiac.local:30880/outcome/kind-prod"
   relayHostAliasIP: "192.168.64.4"
