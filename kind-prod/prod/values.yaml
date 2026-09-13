@@ -161,6 +161,32 @@ slos:
       metric: prober_probe_duration_seconds
       totalFilter: 'namespace="app-checkout-api-prod",container="checkout-api",probe_type="Readiness"'
       latencyThreshold: "1.0"
+  # Third SLO (2026-09-14) - a genuinely robust "not breaching" demonstration,
+  # after the readiness-latency SLO above turned out to be a bad example of
+  # that: its 1.0s threshold was picked from one snapshot of cumulative
+  # bucket counts, close enough to the real tail that it flips between
+  # comfortably-passing and breaching depending on extrapolation noise from
+  # this metric's still-short real history (Sloth's 30d compliance window is
+  # a platform-wide, not per-SLO, setting - can't shrink it away). Re-checked
+  # live 2026-09-14 and found the bucket counts had already reset (kubelet's
+  # own probe-metrics counter isn't a stable lifetime baseline to threshold
+  # precisely against), confirming a knife's-edge pick is the wrong strategy
+  # here regardless of which snapshot it's picked from.
+  #
+  # This one uses the SAME liveness probe as checkout-api-liveness-latency
+  # above, but a 5-SECOND threshold - two full orders of magnitude above this
+  # app's real latency (every measurement across this whole session stayed
+  # in the tens-of-milliseconds range). Real margin against noise/
+  # extrapolation instead of a threshold picked from one bucket snapshot,
+  # the actual lesson from getting this wrong twice already.
+  - name: checkout-api-liveness-headroom
+    service: checkout-api
+    objective: 99
+    indicator:
+      type: latency
+      metric: prober_probe_duration_seconds
+      totalFilter: 'namespace="app-checkout-api-prod",container="checkout-api",probe_type="Liveness"'
+      latencyThreshold: "5.0"
 
 releaseTracking:
   relayUrl: "http://dev.kiac.local:30880/outcome/kind-prod"
