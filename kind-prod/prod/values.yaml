@@ -185,3 +185,6 @@ configMaps:
     data:
       retention: "30"
       max-items: "10"
+secrets:
+  - name: timeout
+    as: both
