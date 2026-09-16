@@ -1,0 +1,16 @@
+{
+  rollout:
+    {
+      replicas: 2,
+      resources: { requests: {}, limits: {} },
+      steps: [],
+      livenessProbe:
+        {
+          httpGet: { path: /healthz, port: 3000 },
+          initialDelaySeconds: 10,
+          periodSeconds: 10,
+          timeoutSeconds: 10
+        },
+      readinessProbe: { httpGet: { path: /healthz, port: 3000 } }
+    }
+}
