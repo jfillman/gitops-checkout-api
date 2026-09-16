@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Rendered by tenant-onboarding's optional 3rd ApplicationSet source (see
+# gitops-cluster-kind-prod's own tenant-onboarding/applicationset.yaml, gated by this
+# app's configMapGenerator: true in gitops-cluster-kind-prod-tenants). Fixed name
+# (disableNameSuffixHash) so idp-application's values.yaml can reference it via
+# configMaps: existingConfigMap: - the accepted tradeoff is this ConfigMap loses
+# Kustomize's own automatic-rollout-on-content-change property.
+configMapGenerator:
+  - name: checkout-api-app-config
+    files:
+      - app-settings.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
