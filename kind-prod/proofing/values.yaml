@@ -4,14 +4,14 @@ cluster: kind-prod
 envName: proofing
 httpRoute:
   enabled: true
-  hostnames: [ "checkout-api-proofing.prod.kiac.local" ]
+  hostnames: ["checkout-api-proofing.prod.kiac.local"]
   parentRefs:
     - name: kiac
       namespace: kiac-gateway
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
-    tag: 0.5.0-3afc9cf
+    tag: 0.5.1-05deefe
   ports:
     - name: http
       containerPort: 3000
@@ -45,25 +45,25 @@ rollout:
   # pod's own name by the standard Deployment/ReplicaSet naming convention.
   steps:
     - setWeight: 20
-    - pause: { duration: 30s }
+    - pause: {duration: 30s}
     - analysis:
         templates:
           - templateName: pod-health-check
         args:
           - name: canary-hash
-            valueFrom: { podTemplateHashValue: Latest }
+            valueFrom: {podTemplateHashValue: Latest}
     - setWeight: 40
-    - pause: { duration: 30s }
+    - pause: {duration: 30s}
     - analysis:
         templates:
           - templateName: restart-stability-check
         args:
           - name: canary-hash
-            valueFrom: { podTemplateHashValue: Latest }
+            valueFrom: {podTemplateHashValue: Latest}
     - setWeight: 60
-    - pause: { duration: 30s }
+    - pause: {duration: 30s}
     - setWeight: 80
-    - pause: { duration: 30s }
+    - pause: {duration: 30s}
   # Continuous background check, sibling of steps (runs for the whole rollout,
   # not just at the two explicit analysis steps above) - same pod-health
   # template, reused rather than duplicated.
@@ -72,7 +72,7 @@ rollout:
       - templateName: pod-health-check
     args:
       - name: canary-hash
-        valueFrom: { podTemplateHashValue: Latest }
+        valueFrom: {podTemplateHashValue: Latest}
     startingStep: 1
 analysisTemplates:
   # Both queries verified live against this cluster's real Prometheus
@@ -187,17 +187,15 @@ slos:
       metric: prober_probe_duration_seconds
       totalFilter: 'namespace="app-checkout-api-proofing",container="checkout-api",probe_type="Liveness"'
       latencyThreshold: "5.0"
-
-
 releaseTracking:
   relayUrl: "http://dev.kiac.local:30880/outcome/kind-prod"
   relayHostAliasIP: "192.168.64.7"
   cluster: kind-prod
   appNamespace: app-checkout-api-cicd
   gitUrl: https://github.com/jfillman/checkout-api
-  gitRevision: "3afc9cf0cfb7b1471c91d34778250fc9f40359e9"
-  flowStartTime: "2026-09-15T16:24:20.622262635Z"
-  chainId: "8c7ebb75-4cd5-43d0-aa5f-a73a80372314"
+  gitRevision: "05deefe81e2a39aafc282ee1c38419ada530211c"
+  flowStartTime: "2026-09-16T16:15:23.772664719Z"
+  chainId: "ec52cb77-9eba-4cb9-b4af-35093e46a327"
   prUrl: ""
   prCreatedAt: ""
   configJsonB64: ewogICJhcGlWZXJzaW9uIjogInBsYXRmb3JtL3YxIiwKICAia2luZCI6ICJQaXBlbGluZUNvbmZpZyIsCiAgImJ1aWxkIjogewogICAgImFnZW50IjogIm5vZGVqcy0yMCIsCiAgICAic2NyaXB0IjogIi4vYnVpbGQuc2giLAogICAgImRvY2tlcmZpbGUiOiAiLi9Eb2NrZXJmaWxlIiwKICAgICJ1bml0VGVzdCI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlLAogICAgICAiY29tbWFuZCI6ICIuL3Rlc3Quc2giCiAgICB9LAogICAgInNvbmFyIjogZmFsc2UsCiAgICAiY2FjaGUiOiB7CiAgICAgICJlbmFibGVkIjogdHJ1ZQogICAgfQogIH0sCiAgInRlc3QiOiB7CiAgICAibmFtZSI6ICJpbnRlZ3JhdGlvbiIKICB9LAogICJkZXBsb3kiOiB7CiAgICAibG93ZXJFbnZpcm9ubWVudHMiOiBbCiAgICAgICJkZXYiLAogICAgICAidGVzdCIsCiAgICAgICJwZXJmIgogICAgXSwKICAgICJ1cHBlckVudmlyb25tZW50cyI6IFsKICAgICAgewogICAgICAgICJuYW1lIjogInByb2QiLAogICAgICAgICJjbHVzdGVyIjogImtpbmQtcHJvZCIKICAgICAgfSwKICAgICAgewogICAgICAgICJuYW1lIjogInByZS1wcm9kIiwKICAgICAgICAiY2x1c3RlciI6ICJraW5kLXByb2QiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibmFtZSI6ICJzdGFnaW5nIiwKICAgICAgICAiY2x1c3RlciI6ICJraW5kLXByb2QiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibmFtZSI6ICJwcm9vZmluZyIsCiAgICAgICAgImNsdXN0ZXIiOiAia2luZC1wcm9kIgogICAgICB9CiAgICBdLAogICAgInN0cmF0ZWd5IjogImRlcGxveW1lbnQiLAogICAgInByb21vdGlvbk9yZGVyIjogWwogICAgICAiZGV2IiwKICAgICAgInRlc3QiLAogICAgICAicGVyZiIsCiAgICAgICJwcm9vZmluZyIsCiAgICAgICJzdGFnaW5nIiwKICAgICAgInByZS1wcm9kIiwKICAgICAgInByb2QiCiAgICBdCiAgfSwKICAiZXBoZW1lcmFsRW52aXJvbm1lbnRzIjogewogICAgImJyYW5jaCI6IHsKICAgICAgImVuYWJsZWQiOiBmYWxzZQogICAgfSwKICAgICJwdWxsUmVxdWVzdCI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlCiAgICB9LAogICAgInR0bCI6ICI1ZCIKICB9LAogICJnb3Zlcm5hbmNlIjogewogICAgInNhc3QiOiB0cnVlLAogICAgImltYWdlU2NhbiI6IHRydWUsCiAgICAicG9saWN5Q2hlY2siOiB0cnVlLAogICAgInNib20iOiB0cnVlLAogICAgImFsbG93ZWRDb21taXRTaWduZXJzIjogWwogICAgICAiY3Jvc3NmYWRlckBnbWFpbC5jb20iLAogICAgICAiNzI2ODMzNytqZmlsbG1hbkB1c2Vycy5ub3JlcGx5LmdpdGh1Yi5jb20iCiAgICBdCiAgfSwKICAic2VjcmV0cyI6IFsKICAgIHsKICAgICAgIm5hbWUiOiAic2xhY2std2ViaG9vay11cmwiCiAgICB9CiAgXSwKICAibm90aWZpY2F0aW9ucyI6IHsKICAgICJzbGFjayI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlLAogICAgICAiY2hhbm5lbCI6ICIjYWxsLWlkcC1sYWIiCiAgICB9LAogICAgImJhY2tzdGFnZSI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlCiAgICB9CiAgfSwKICAicGlwZWxpbmVzIjogewogICAgImNpIjogewogICAgICAidHJpZ2dlciI6IHsKICAgICAgICAic291cmNlIjogImdpdCIsCiAgICAgICAgImV2ZW50IjogInB1c2giLAogICAgICAgICJicmFuY2giOiAibWFpbiIKICAgICAgfSwKICAgICAgInN0ZXBzIjogWwogICAgICAgIHsKICAgICAgICAgICJzdGFnZSI6ICJidWlsZCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJzdGFnZSI6ICJkZXBsb3kiLAogICAgICAgICAgImVudiI6ICJkZXYiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAic3RhZ2UiOiAidGVzdCIsCiAgICAgICAgICAiZW52IjogImRldiIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJzdGFnZSI6ICJkZXBsb3kiLAogICAgICAgICAgImVudiI6ICJ0ZXN0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgInN0YWdlIjogInRlc3QiLAogICAgICAgICAgImVudiI6ICJ0ZXN0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgInN0YWdlIjogInJlbGVhc2UiLAogICAgICAgICAgImVudiI6ICJwcm9vZmluZyIKICAgICAgICB9CiAgICAgIF0KICAgIH0KICB9Cn0K
