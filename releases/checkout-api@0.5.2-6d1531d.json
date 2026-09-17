@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "checkout-api@0.5.2-6d1531d",
+  "appName": "checkout-api",
+  "imageTag": "0.5.2-6d1531d",
+  "imageRepo": "ghcr.io/jfillman/checkout-api",
+  "gitRevisionShort": "6d1531d",
+  "cluster": "kind-prod",
+  "env": "proofing",
+  "generatedAt": "2026-09-17T21:08:24.215Z",
+  "humanContext": {
+    "approvals": []
+  }
+}
