@@ -9,6 +9,11 @@
   "env": "proofing",
   "generatedAt": "2026-09-17T21:08:24.215Z",
   "humanContext": {
-    "approvals": []
+    "approvals": [],
+    "summary": "performance improvements",
+    "risk": "medium",
+    "riskNotes": "low risk change",
+    "verificationNotes": "- note 1\n- note 2",
+    "authoredBy": "user:default/jfillman"
   }
 }
