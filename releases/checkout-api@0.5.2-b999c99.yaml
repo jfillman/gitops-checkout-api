@@ -1,0 +1,11 @@
+schemaVersion: 1
+id: checkout-api@0.5.2-b999c99
+appName: checkout-api
+imageTag: 0.5.2-b999c99
+imageRepo: ghcr.io/jfillman/checkout-api
+gitRevisionShort: b999c99
+cluster: kind-prod
+env: staging
+generatedAt: 2026-09-17T23:53:28.807Z
+humanContext:
+  approvals: []
