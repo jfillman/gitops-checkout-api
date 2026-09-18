@@ -4,14 +4,14 @@ cluster: kind-prod
 envName: proofing
 httpRoute:
   enabled: true
-  hostnames: ["checkout-api-proofing.prod.kiac.local"]
+  hostnames: [ "checkout-api-proofing.prod.kiac.local" ]
   parentRefs:
     - name: kiac
       namespace: kiac-gateway
 rollout:
   image:
     repository: ghcr.io/jfillman/checkout-api
-    tag: 0.5.2-6d1531d
+    tag: 0.5.3-3e9c9d9
   ports:
     - name: http
       containerPort: 3000
@@ -45,25 +45,25 @@ rollout:
   # pod's own name by the standard Deployment/ReplicaSet naming convention.
   steps:
     - setWeight: 20
-    - pause: {duration: 30s}
+    - pause: { duration: 30s }
     - analysis:
         templates:
           - templateName: pod-health-check
         args:
           - name: canary-hash
-            valueFrom: {podTemplateHashValue: Latest}
+            valueFrom: { podTemplateHashValue: Latest }
     - setWeight: 40
-    - pause: {duration: 30s}
+    - pause: { duration: 30s }
     - analysis:
         templates:
           - templateName: restart-stability-check
         args:
           - name: canary-hash
-            valueFrom: {podTemplateHashValue: Latest}
+            valueFrom: { podTemplateHashValue: Latest }
     - setWeight: 60
-    - pause: {duration: 30s}
+    - pause: { duration: 30s }
     - setWeight: 80
-    - pause: {duration: 30s}
+    - pause: { duration: 30s }
   # Continuous background check, sibling of steps (runs for the whole rollout,
   # not just at the two explicit analysis steps above) - same pod-health
   # template, reused rather than duplicated.
@@ -72,7 +72,7 @@ rollout:
       - templateName: pod-health-check
     args:
       - name: canary-hash
-        valueFrom: {podTemplateHashValue: Latest}
+        valueFrom: { podTemplateHashValue: Latest }
     startingStep: 1
 analysisTemplates:
   # Both queries verified live against this cluster's real Prometheus
@@ -193,12 +193,12 @@ releaseTracking:
   cluster: kind-prod
   appNamespace: app-checkout-api-cicd
   gitUrl: https://github.com/jfillman/checkout-api
-  gitRevision: "6d1531dde8e21f2b794bf209d128c60cebceca23"
-  flowStartTime: "2026-09-17T15:02:17.060823926Z"
-  chainId: "628ddba1-9804-42f2-9dd7-9f09b6a75387"
+  gitRevision: "3e9c9d94d1f3ed6adf1e98641c02f4247cb3593c"
+  flowStartTime: "2026-09-18T15:08:22.216Z"
+  chainId: "fa0089bf-e6e7-4efb-9044-26ccda8543ad"
   prUrl: ""
   prCreatedAt: ""
-  configJsonB64: ewogICJhcGlWZXJzaW9uIjogInBsYXRmb3JtL3YxIiwKICAia2luZCI6ICJQaXBlbGluZUNvbmZpZyIsCiAgImJ1aWxkIjogewogICAgImFnZW50IjogIm5vZGVqcy0yMCIsCiAgICAic2NyaXB0IjogIi4vYnVpbGQuc2giLAogICAgImRvY2tlcmZpbGUiOiAiLi9Eb2NrZXJmaWxlIiwKICAgICJ1bml0VGVzdCI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlLAogICAgICAiY29tbWFuZCI6ICIuL3Rlc3Quc2giCiAgICB9LAogICAgInNvbmFyIjogZmFsc2UsCiAgICAiY2FjaGUiOiB7CiAgICAgICJlbmFibGVkIjogdHJ1ZQogICAgfQogIH0sCiAgInRlc3QiOiB7CiAgICAibmFtZSI6ICJpbnRlZ3JhdGlvbiIKICB9LAogICJkZXBsb3kiOiB7CiAgICAibG93ZXJFbnZpcm9ubWVudHMiOiBbCiAgICAgICJkZXYiLAogICAgICAidGVzdCIsCiAgICAgICJwZXJmIgogICAgXSwKICAgICJ1cHBlckVudmlyb25tZW50cyI6IFsKICAgICAgewogICAgICAgICJuYW1lIjogInByb2QiLAogICAgICAgICJjbHVzdGVyIjogImtpbmQtcHJvZCIKICAgICAgfSwKICAgICAgewogICAgICAgICJuYW1lIjogInByZS1wcm9kIiwKICAgICAgICAiY2x1c3RlciI6ICJraW5kLXByb2QiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibmFtZSI6ICJzdGFnaW5nIiwKICAgICAgICAiY2x1c3RlciI6ICJraW5kLXByb2QiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibmFtZSI6ICJwcm9vZmluZyIsCiAgICAgICAgImNsdXN0ZXIiOiAia2luZC1wcm9kIgogICAgICB9CiAgICBdLAogICAgInN0cmF0ZWd5IjogImRlcGxveW1lbnQiLAogICAgInByb21vdGlvbk9yZGVyIjogWwogICAgICAiZGV2IiwKICAgICAgInRlc3QiLAogICAgICAicGVyZiIsCiAgICAgICJwcm9vZmluZyIsCiAgICAgICJzdGFnaW5nIiwKICAgICAgInByZS1wcm9kIiwKICAgICAgInByb2QiCiAgICBdCiAgfSwKICAiZXBoZW1lcmFsRW52aXJvbm1lbnRzIjogewogICAgImJyYW5jaCI6IHsKICAgICAgImVuYWJsZWQiOiBmYWxzZQogICAgfSwKICAgICJwdWxsUmVxdWVzdCI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlCiAgICB9LAogICAgInR0bCI6ICI1ZCIKICB9LAogICJnb3Zlcm5hbmNlIjogewogICAgInNhc3QiOiB0cnVlLAogICAgImltYWdlU2NhbiI6IHRydWUsCiAgICAicG9saWN5Q2hlY2siOiB0cnVlLAogICAgInNib20iOiB0cnVlLAogICAgImFsbG93ZWRDb21taXRTaWduZXJzIjogWwogICAgICAiY3Jvc3NmYWRlckBnbWFpbC5jb20iLAogICAgICAiNzI2ODMzNytqZmlsbG1hbkB1c2Vycy5ub3JlcGx5LmdpdGh1Yi5jb20iCiAgICBdCiAgfSwKICAic2VjcmV0cyI6IFsKICAgIHsKICAgICAgIm5hbWUiOiAic2xhY2std2ViaG9vay11cmwiCiAgICB9CiAgXSwKICAibm90aWZpY2F0aW9ucyI6IHsKICAgICJzbGFjayI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlLAogICAgICAiY2hhbm5lbCI6ICIjYWxsLWlkcC1sYWIiCiAgICB9LAogICAgImJhY2tzdGFnZSI6IHsKICAgICAgImVuYWJsZWQiOiB0cnVlCiAgICB9CiAgfSwKICAicGlwZWxpbmVzIjogewogICAgImNpIjogewogICAgICAidHJpZ2dlciI6IHsKICAgICAgICAic291cmNlIjogImdpdCIsCiAgICAgICAgImV2ZW50IjogInB1c2giLAogICAgICAgICJicmFuY2giOiAibWFpbiIKICAgICAgfSwKICAgICAgInN0ZXBzIjogWwogICAgICAgIHsKICAgICAgICAgICJzdGFnZSI6ICJidWlsZCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJzdGFnZSI6ICJkZXBsb3kiLAogICAgICAgICAgImVudiI6ICJkZXYiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAic3RhZ2UiOiAidGVzdCIsCiAgICAgICAgICAiZW52IjogImRldiIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJzdGFnZSI6ICJkZXBsb3kiLAogICAgICAgICAgImVudiI6ICJ0ZXN0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgInN0YWdlIjogInRlc3QiLAogICAgICAgICAgImVudiI6ICJ0ZXN0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgInN0YWdlIjogInJlbGVhc2UiLAogICAgICAgICAgImVudiI6ICJwcm9vZmluZyIKICAgICAgICB9CiAgICAgIF0KICAgIH0KICB9Cn0K
+  configJsonB64: eyJhcGlWZXJzaW9uIjoicGxhdGZvcm0vdjEiLCJraW5kIjoiUGlwZWxpbmVDb25maWciLCJidWlsZCI6eyJhZ2VudCI6Im5vZGVqcy0yMCIsInNjcmlwdCI6Ii4vYnVpbGQuc2giLCJkb2NrZXJmaWxlIjoiLi9Eb2NrZXJmaWxlIiwidW5pdFRlc3QiOnsiZW5hYmxlZCI6dHJ1ZSwiY29tbWFuZCI6Ii4vdGVzdC5zaCJ9LCJzb25hciI6ZmFsc2UsImNhY2hlIjp7ImVuYWJsZWQiOnRydWUsInNpemUiOiJzbWFsbCJ9LCJzb3VyY2VWb2x1bWUiOnsic2l6ZSI6InNtYWxsIn19LCJ0ZXN0Ijp7ImVuYWJsZWQiOnRydWUsIm5hbWUiOiJpbnRlZ3JhdGlvbiJ9LCJkZXBsb3kiOnsibG93ZXJFbnZpcm9ubWVudHMiOlsiZGV2IiwidGVzdCIsInJlbCIsInBlcmYiXSwidXBwZXJFbnZpcm9ubWVudHMiOlt7Im5hbWUiOiJwcm9kIiwiY2x1c3RlciI6ImtpbmQtcHJvZCJ9LHsibmFtZSI6InByZS1wcm9kIiwiY2x1c3RlciI6ImtpbmQtcHJvZCJ9LHsibmFtZSI6InN0YWdpbmciLCJjbHVzdGVyIjoia2luZC1wcm9kIn0seyJuYW1lIjoicHJvb2ZpbmciLCJjbHVzdGVyIjoia2luZC1wcm9kIn1dLCJzdHJhdGVneSI6ImRlcGxveW1lbnQiLCJwcm9tb3Rpb25PcmRlciI6WyJkZXYiLCJ0ZXN0IiwicmVsIiwicGVyZiIsInByb29maW5nIiwic3RhZ2luZyIsInByZS1wcm9kIiwicHJvZCJdfSwiZXBoZW1lcmFsRW52aXJvbm1lbnRzIjp7ImJyYW5jaCI6eyJlbmFibGVkIjpmYWxzZSwicGF0dGVybnMiOlsicHJldmlldy8qIl19LCJwdWxsUmVxdWVzdCI6eyJlbmFibGVkIjp0cnVlLCJsYWJlbHMiOlsicHJldmlldyJdfSwidHRsIjoiNWQifSwiZ292ZXJuYW5jZSI6eyJzYXN0Ijp0cnVlLCJpbWFnZVNjYW4iOnRydWUsInBvbGljeUNoZWNrIjp0cnVlLCJzYm9tIjp0cnVlLCJhbGxvd2VkQ29tbWl0U2lnbmVycyI6WyJjcm9zc2ZhZGVyQGdtYWlsLmNvbSIsIjcyNjgzMzcramZpbGxtYW5AdXNlcnMubm9yZXBseS5naXRodWIuY29tIl19LCJzZWNyZXRzIjpbeyJuYW1lIjoic2xhY2std2ViaG9vay11cmwifV0sIm5vdGlmaWNhdGlvbnMiOnsic2xhY2siOnsiZW5hYmxlZCI6dHJ1ZSwiY2hhbm5lbCI6IiNhbGwtaWRwLWxhYiIsInNjYW5SZXN1bHRzIjpmYWxzZX0sImJhY2tzdGFnZSI6eyJlbmFibGVkIjp0cnVlfX0sInBpcGVsaW5lcyI6eyJjaSI6eyJ0cmlnZ2VyIjp7InNvdXJjZSI6ImdpdCIsImV2ZW50IjoicHVzaCIsImJyYW5jaCI6Im1haW4ifSwic3RlcHMiOlt7InN0YWdlIjoiYnVpbGQifSx7InN0YWdlIjoiZGVwbG95IiwiZW52IjoiZGV2In0seyJzdGFnZSI6InRlc3QiLCJlbnYiOiJkZXYifSx7InN0YWdlIjoiZGVwbG95IiwiZW52IjoidGVzdCJ9LHsic3RhZ2UiOiJ0ZXN0IiwiZW52IjoidGVzdCJ9XX19fQ==
 configMaps:
   - name: map-01
     data:
